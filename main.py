@@ -1,4 +1,6 @@
 from asyncio.windows_events import NULL
+from optparse import Option
+from matplotlib.style import use
 import pygame
 import random
 import sys
@@ -6,6 +8,8 @@ from button import Button
 
 pygame.font.init()
 
+
+option = 1
 SCREEN = pygame.display.set_mode((800, 700))
 pygame.display.set_caption("Menu")
 
@@ -273,7 +277,7 @@ def main():
 
 
     while True:
-        fall_speed = 0.27
+        fall_speed = 0.8
 
         grid = create_grid(locked_positions)
         fall_time += clock.get_rawtime()
@@ -346,15 +350,188 @@ def main():
     pygame.time.delay(2000)
 
 
+def main2():
+    global grid
+    Score = [0]
+    locked_positions = {}
+    grid = create_grid(locked_positions)
+
+    change_piece = False
+    run = True
+    current_piece = get_shape()
+    next_piece = get_shape()
+    clock = pygame.time.Clock()
+    fall_time = 0
+
+    while True:
+        fall_speed = 0.30
+
+        grid = create_grid(locked_positions)
+        fall_time += clock.get_rawtime()
+        clock.tick()
+
+        if fall_time / 1000 >= fall_speed:
+            fall_time = 0
+            current_piece.y += 1
+            if not (valid_space(current_piece, grid)) and current_piece.y > 0:
+                current_piece.y -= 1
+                change_piece = True
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.display.quit()
+                quit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    current_piece.x -= 1
+                    if not valid_space(current_piece, grid):
+                        current_piece.x += 1
+
+                elif event.key == pygame.K_RIGHT:
+                    current_piece.x += 1
+                    if not valid_space(current_piece, grid):
+                        current_piece.x -= 1
+                elif event.key == pygame.K_UP:
+                    # rotate shape
+                    current_piece.rotation = current_piece.rotation + \
+                        1 % len(current_piece.shape)
+                    if not valid_space(current_piece, grid):
+                        current_piece.rotation = current_piece.rotation - \
+                            1 % len(current_piece.shape)
+
+                if event.key == pygame.K_DOWN:
+                    # move shape down
+                    current_piece.y += 1
+                    if not valid_space(current_piece, grid):
+                        current_piece.y -= 1
+
+        shape_pos = convert_shape_format(current_piece)
+
+        for i in range(len(shape_pos)):
+            x, y = shape_pos[i]
+            if y > -1:
+                grid[y][x] = current_piece.color
+
+        if change_piece:
+            for pos in shape_pos:
+                p = (pos[0], pos[1])
+                locked_positions[p] = current_piece.color
+            current_piece = next_piece
+            next_piece = get_shape()
+            change_piece = False
+
+            clear_rows(grid, locked_positions, Score)
+
+        draw_window(win)
+        score = str(Score[0])
+        draw_right_side(next_piece, win, score)
+        pygame.display.update()
+
+        if check_lost(locked_positions):
+            run = False
+
+    draw_text_middle("You Lost : " + str(Score[0]), 40, (0, 0, 0), win)
+    pygame.display.update()
+    pygame.time.delay(2000)
+
+
+def main3():
+    global grid
+    Score = [0]
+    locked_positions = {}
+    grid = create_grid(locked_positions)
+
+    change_piece = False
+    run = True
+    current_piece = get_shape()
+    next_piece = get_shape()
+    clock = pygame.time.Clock()
+    fall_time = 0
+
+    while True:
+        fall_speed = 0.18
+
+        grid = create_grid(locked_positions)
+        fall_time += clock.get_rawtime()
+        clock.tick()
+
+        if fall_time / 1000 >= fall_speed:
+            fall_time = 0
+            current_piece.y += 1
+            if not (valid_space(current_piece, grid)) and current_piece.y > 0:
+                current_piece.y -= 1
+                change_piece = True
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.display.quit()
+                quit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    current_piece.x -= 1
+                    if not valid_space(current_piece, grid):
+                        current_piece.x += 1
+
+                elif event.key == pygame.K_RIGHT:
+                    current_piece.x += 1
+                    if not valid_space(current_piece, grid):
+                        current_piece.x -= 1
+                elif event.key == pygame.K_UP:
+                    # rotate shape
+                    current_piece.rotation = current_piece.rotation + \
+                        1 % len(current_piece.shape)
+                    if not valid_space(current_piece, grid):
+                        current_piece.rotation = current_piece.rotation - \
+                            1 % len(current_piece.shape)
+
+                if event.key == pygame.K_DOWN:
+                    # move shape down
+                    current_piece.y += 1
+                    if not valid_space(current_piece, grid):
+                        current_piece.y -= 1
+
+        shape_pos = convert_shape_format(current_piece)
+
+        for i in range(len(shape_pos)):
+            x, y = shape_pos[i]
+            if y > -1:
+                grid[y][x] = current_piece.color
+
+        if change_piece:
+            for pos in shape_pos:
+                p = (pos[0], pos[1])
+                locked_positions[p] = current_piece.color
+            current_piece = next_piece
+            next_piece = get_shape()
+            change_piece = False
+
+            clear_rows(grid, locked_positions, Score)
+
+        draw_window(win)
+        score = str(Score[0])
+        draw_right_side(next_piece, win, score)
+        pygame.display.update()
+
+        if check_lost(locked_positions):
+            run = False
+
+    draw_text_middle("You Lost : " + str(Score[0]), 40, (0, 0, 0), win)
+    pygame.display.update()
+    pygame.time.delay(2000)
+
+
 def name():
     #pygame.init()
-    SCREEN.blit(BG, (0, 0))
     clock = pygame.time.Clock()
     screen = pygame.display.set_mode([800, 750])
     base_font = pygame.font.Font(None, 32)
     user_text = ''
     input_rect = pygame.Rect(150, 150, 140, 32)
-    color_active = pygame.Color('red')
+    color_active = pygame.Color('black')
     color_passive = pygame.Color('red')
     color = color_passive
     active = False
@@ -379,37 +556,53 @@ def name():
                     user_text += event.unicode
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:  
-                    main() 
+                    play()
+                     
 
         if active:
             color = color_active
         else:
             color = color_passive
 
+        SCREEN.blit(BG, (0, 0))
+        OPTIONS_TEXT = get_font(45).render(
+            "Please enter your name:", True, "#d7fcd4")
+        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(400, 50))
+        SCREEN.blit(OPTIONS_TEXT, OPTIONS_RECT)
         pygame.draw.rect(screen, color, input_rect)
         text_surface = base_font.render(user_text, True, (255, 255, 255))
         screen.blit(text_surface, (input_rect.x+5, input_rect.y+5))
         input_rect.w = max(500, text_surface.get_width()+10)
         pygame.display.flip()
-        clock.tick(60)
-            
-
+        clock.tick(80)
+   
 def options():
+    global option
     while True:
 
         SCREEN.blit(BG, (0, 0))
         OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
 
         OPTIONS_TEXT = get_font(45).render(
-            "This is the OPTIONS screen.", True, "Black")
-        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(400, 260))
+            "Choose difficulty level", True, "#d7fcd4")
+        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(400, 50))
         SCREEN.blit(OPTIONS_TEXT, OPTIONS_RECT)
 
-        OPTIONS_BACK = Button(image=None, pos=(400, 460),
-                              text_input="BACK", font=get_font(75), base_color="Black", hovering_color="Green")
+        EASY = Button(image=None, pos=(100, 250),
+                              text_input="Easy", font=get_font(75), base_color="#d7fcd4", hovering_color="#eb564b")
 
-        OPTIONS_BACK.changeColor(OPTIONS_MOUSE_POS)
-        OPTIONS_BACK.update(SCREEN)
+        MEDIUM = Button(image=None, pos=(400, 250),
+                              text_input="Medium", font=get_font(75), base_color="#d7fcd4", hovering_color="#eb564b")
+        
+        HARD = Button(image=None, pos=(670, 250),
+                              text_input="Hard", font=get_font(75), base_color="#d7fcd4", hovering_color="#eb564b")
+
+        OPTIONS_BACK = Button(image=None, pos=(400, 500),
+                              text_input="BACK", font=get_font(75), base_color="#d7fcd4", hovering_color="#eb564b")
+
+        for button in [EASY, MEDIUM, HARD, OPTIONS_BACK]:
+            button.changeColor(OPTIONS_MOUSE_POS)
+            button.update(SCREEN)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -418,7 +611,15 @@ def options():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if OPTIONS_BACK.checkForInput(OPTIONS_MOUSE_POS):
                     main_menu()
-
+                if EASY.checkForInput(OPTIONS_MOUSE_POS):
+                    option = 1
+                    print(option)
+                if MEDIUM.checkForInput(OPTIONS_MOUSE_POS):
+                    option = 2
+                    print(option)
+                if HARD.checkForInput(OPTIONS_MOUSE_POS):
+                    option = 3
+                    print(option)
         pygame.display.update()
 
 def score():
@@ -428,12 +629,12 @@ def score():
         OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
 
         OPTIONS_TEXT = get_font(45).render(
-            "This is the LEADERBOARD screen.", True, "Black")
-        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(400, 260))
+            "Leaderboard", True, "#d7fcd4")
+        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(400, 50))
         SCREEN.blit(OPTIONS_TEXT, OPTIONS_RECT)
 
         OPTIONS_BACK = Button(image=None, pos=(400, 460),
-                              text_input="BACK", font=get_font(75), base_color="Black", hovering_color="Green")
+                              text_input="BACK", font=get_font(75), base_color="#d7fcd4", hovering_color="#eb564b")
 
         OPTIONS_BACK.changeColor(OPTIONS_MOUSE_POS)
         OPTIONS_BACK.update(SCREEN)
@@ -445,8 +646,19 @@ def score():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if OPTIONS_BACK.checkForInput(OPTIONS_MOUSE_POS):
                     main_menu()
+                    
 
         pygame.display.update()
+
+def play():
+    if option == 1:
+        main()
+    elif option == 2:
+        main2()
+    else:
+        main3()
+
+
 
 def main_menu():
     clk = 0   
@@ -490,6 +702,7 @@ def main_menu():
             pygame.display.update()
 win = pygame.display.set_mode((s_width, s_height))
 pygame.display.set_caption('T E T R I S')
+
 
 main_menu()
 
