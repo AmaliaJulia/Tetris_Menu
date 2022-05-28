@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 import pygame
 import random
 import sys
@@ -231,6 +232,21 @@ def draw_score(surface, score):
 
 
 def draw_window(surface):
+    OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
+    OPTIONS_BACK = Button(image=None, pos=(70, 650), text_input="BACK", font=get_font(50), base_color="#d7fcd4", hovering_color="White")
+
+    OPTIONS_BACK.update(SCREEN)
+
+    for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if OPTIONS_BACK.checkForInput(OPTIONS_MOUSE_POS):
+                    main_menu()
+
+    pygame.display.update()
+
     surface.fill((64, 64, 64))
     font = pygame.font.SysFont('comicsans', 60)
     label = font.render('T E T R I S', 1, (255, 255, 255))
@@ -255,7 +271,8 @@ def main():
     clock = pygame.time.Clock()
     fall_time = 0
 
-    while run:
+
+    while True:
         fall_speed = 0.27
 
         grid = create_grid(locked_positions)
@@ -297,6 +314,8 @@ def main():
                     if not valid_space(current_piece, grid):
                         current_piece.y -= 1
 
+                        
+
         shape_pos = convert_shape_format(current_piece)
 
         for i in range(len(shape_pos)):
@@ -327,11 +346,59 @@ def main():
     pygame.time.delay(2000)
 
 
+def name():
+    #pygame.init()
+    SCREEN.blit(BG, (0, 0))
+    clock = pygame.time.Clock()
+    screen = pygame.display.set_mode([800, 750])
+    base_font = pygame.font.Font(None, 32)
+    user_text = ''
+    input_rect = pygame.Rect(150, 150, 140, 32)
+    color_active = pygame.Color('red')
+    color_passive = pygame.Color('red')
+    color = color_passive
+    active = False
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if input_rect.collidepoint(event.pos):
+                    active = True
+                else:
+                    active = False
+
+            if event.type == pygame.KEYDOWN:
+
+                if event.key == pygame.K_BACKSPACE:
+                    user_text = user_text[:-1]
+                else:
+                    user_text += event.unicode
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:  
+                    main() 
+
+        if active:
+            color = color_active
+        else:
+            color = color_passive
+
+        pygame.draw.rect(screen, color, input_rect)
+        text_surface = base_font.render(user_text, True, (255, 255, 255))
+        screen.blit(text_surface, (input_rect.x+5, input_rect.y+5))
+        input_rect.w = max(500, text_surface.get_width()+10)
+        pygame.display.flip()
+        clock.tick(60)
+            
+
 def options():
     while True:
-        OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
 
-        SCREEN.fill("white")
+        SCREEN.blit(BG, (0, 0))
+        OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
 
         OPTIONS_TEXT = get_font(45).render(
             "This is the OPTIONS screen.", True, "Black")
@@ -356,9 +423,9 @@ def options():
 
 def score():
     while True:
-        OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
 
-        SCREEN.fill("white")
+        SCREEN.blit(BG, (0, 0))
+        OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
 
         OPTIONS_TEXT = get_font(45).render(
             "This is the LEADERBOARD screen.", True, "Black")
@@ -382,39 +449,12 @@ def score():
         pygame.display.update()
 
 def main_menu():
-#     clk = 0
-#     run = True
-#     color = (0, 0, 0)
-#     while run:
-#         if clk % 501 == 500:
-#             color = random.choice(shape_colors)
-#         win.fill(color)
-#         draw_main_menu(60, (255, 255, 255), win)
-#         pygame.display.update()
-#         for event in pygame.event.get():
-#             if event.type == pygame.QUIT:
-#                 run = False
-
-#             if event.type == pygame.KEYDOWN:
-#                 if event.key == pygame.K_SPACE:
-#                     main()
-#                 elif event.key == pygame.K_ESCAPE:
-#                     run = False
-#         clk += 1
-#     pygame.quit()
-
-
-# win = pygame.display.set_mode((s_width, s_height))
-# pygame.display.set_caption('T E T R I S')
     clk = 0   
-    color = (0, 0, 0)
+    color = "#eb564b"
     while True:
-            color = random.choice(shape_colors)
             SCREEN.blit(BG, (0, 0))
 
             MENU_MOUSE_POS = pygame.mouse.get_pos()
-
-        
             MENU_TEXT = get_font(90).render("MAIN MENU", True, color)
             MENU_RECT = MENU_TEXT.get_rect(center=(400, 100))
 
@@ -439,7 +479,7 @@ def main_menu():
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
-                        main()
+                        name()
                     if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
                         options()
                     if LEADERBOARD_BUTTON.checkForInput(MENU_MOUSE_POS):
