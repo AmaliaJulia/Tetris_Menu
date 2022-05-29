@@ -126,12 +126,12 @@ def get_shape():
     return Piece(5, 0, random.choice(shapes))
 
 
-# def draw_text_middle(text, size, color, surface):
-#     font = pygame.font.SysFont('comicsans', size, bold=True)
-#     label = font.render(text, 1, color)
+def draw_text_middle(text, size, color, surface):
+    font = pygame.font.SysFont('comicsans', size, bold=True)
+    label = font.render(text, 1, color)
 
-#     surface.blit(label, (
-#     top_left_x + play_width / 2 - (label.get_width() / 2), top_left_y + play_height / 2 - label.get_height() / 2))
+    surface.blit(label, (
+    top_left_x + play_width / 2 - (label.get_width() / 2), top_left_y + play_height / 2 - label.get_height() / 2))
 
 def draw_grid(surface, row, col):
     sx = top_left_x
@@ -253,7 +253,10 @@ def main():
     clock = pygame.time.Clock()
     fall_time = 0
 
-    while True:
+    while run:
+        global fall_speed
+        global option
+
         if option == 1:
             fall_speed = 0.8
         elif option == 2:
@@ -326,7 +329,7 @@ def main():
         if check_lost(locked_positions):
             run = False
 
-    draw_text_middle("You Lost : " + str(Score[0]), 40, (0, 0, 0), win)
+        draw_text_middle("You Lost : " + str(Score[0]), 40, (0, 0, 0), win)
     pygame.display.update()
     pygame.time.delay(2000)
 
